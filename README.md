@@ -1,4 +1,4 @@
-This Python code creates a GUI app using Tkinter. The app provides two calculators on separate tabs.
+This Python code creates a GUI app for two calculators on separate tabs.
 
 1st Tab: Percentage Change Calculator:
 Calculates the percentage change between an old value and a new value,
