@@ -1,14 +1,15 @@
-This Python code creates a GUI app for three calculators on separate tabs.
+This Python code creates a GUI app for 4 calculators on separate tabs.
 
-1st Tab: Percentage Change Calculator:
-Calculates the percentage change between an old value and a new value,
-displaying the result with step-by-step instructions for performing the calculation on a desktop calculator and in Excel.
+Multiple functions including % change, VAT calculation, increase/decrease & basic arithmetic
 
-2nd Tab: Value Adjustment Calculator:
-Determines the new value after either an increase or decrease by a given percentage from an old value.
-It also provides step-by-step instructions for a desktop calculator and in Excel.
+Includes a VAT calculator to add or subtract VAT from a given amount
 
-3rd Tab: Basic Calculator:
-With calculations for addition, subtraction, multiplication and division.
+Calculates % change between two values
 
-The GUI includes buttons for calculating results, clearing input fields, and toggling the visibility of the calculation steps.
+Offers an increase/decrease calculator to find new values after applying a % increase or decrease
+
+Displays step-by-step calculation methods for desktop and Excel formats for better understanding
+
+Allows users to clear fields and reset values easily
+
+Customizes its appearance with a user-defined icon
