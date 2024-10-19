@@ -55,6 +55,21 @@ def calculate_percentage(event=None):
         difference = new_value - old_value
         percentage = (difference / old_value) * 100
         result_label.config(text=f"Percentage Change: {percentage:.{decimal_places}f}%")
+
+        # Desktop steps
+        desktop_steps = (
+            f"Step 1: Subtract old value from new value: {new_value:.{decimal_places}f} - {old_value:.{decimal_places}f} = {difference:.{decimal_places}f}\n"
+            f"Step 2: Divide the difference by the old value: {difference:.{decimal_places}f} / {old_value:.{decimal_places}f} = {difference / old_value:.{decimal_places}f}\n"
+            f"Step 3: Multiply by 100 to get the percentage: ({difference / old_value:.{decimal_places}f}) * 100 = {percentage:.{decimal_places}f}%"
+        )
+        desktop_steps_label.config(text=desktop_steps)
+        
+        # Excel steps
+        excel_steps = (
+            f"=((New Value - Old Value) / Old Value) * 100\n"
+            f"Example: =(({new_value:.{decimal_places}f} - {old_value:.{decimal_places}f}) / {old_value:.{decimal_places}f}) * 100"
+        )
+        excel_steps_label.config(text=excel_steps)
     except ValueError:
         result_label.config(text="Please enter valid numbers")
 
@@ -73,6 +88,22 @@ def calculate_new_value(event=None):
         new_value_entry.delete(0, tk.END)
         new_value_entry.insert(0, f"{new_value:.{decimal_places}f}")
         result_label2.config(text=f"New Value: {new_value:.{decimal_places}f}")
+
+        # Desktop steps for Increase/Decrease
+        desktop_steps2 = (
+            f"Step 1: Operation chosen: {operation}\n"
+            f"Step 2: Calculation: {old_value:.{decimal_places}f} * (1 {'+' if operation == 'Increase' else '-'} {percent_value:.{decimal_places}f}%) = {new_value:.{decimal_places}f}"
+        )
+        desktop_steps_label2.config(text=desktop_steps2)
+        
+        # Excel steps for Increase/Decrease
+        excel_steps2 = (
+            f"=Old Value * (1 + (Percent Value / 100)) (for Increase)\n"
+            f"=Old Value * (1 - (Percent Value / 100)) (for Decrease)\n"
+            f"Example for Increase: ={old_value:.{decimal_places}f} * (1 + {percent_value / 100:.{decimal_places}f})\n"
+            f"Example for Decrease: ={old_value:.{decimal_places}f} * (1 - {percent_value / 100:.{decimal_places}f})"
+        )
+        excel_steps_label2.config(text=excel_steps2)
     except ValueError:
         result_label2.config(text="Please enter valid numeric values.")
 
@@ -82,8 +113,26 @@ def basic_calculate(event=None):
         expression = entry_expression.get()  
         result = eval(expression)  
         result_label_basic.config(text=f"Result: {result:.{decimal_places}f}")
+
+        # Show basic calculation steps (for simplicity, just echoing the expression)
+        basic_steps = f"Calculation performed: {expression} = {result:.{decimal_places}f}"
+        basic_steps_label.config(text=basic_steps)
+
     except (ValueError, SyntaxError, ZeroDivisionError):
         result_label_basic.config(text="Enter a valid expression")
+
+# Toggle visibility of Desktop and Excel steps
+def toggle_calculations():
+    widgets = [
+        desktop_heading, desktop_steps_label, excel_heading, excel_steps_label,
+        desktop_heading2, desktop_steps_label2, excel_heading2, excel_steps_label2,
+        basic_heading, basic_steps_label  # Including basic calculation steps toggle
+    ]
+    for widget in widgets:
+        if widget.winfo_viewable():
+            widget.grid_remove()
+        else:
+            widget.grid()
 
 # The main application starts here
 root = tk.Tk()
@@ -156,9 +205,28 @@ calculate_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
 result_label = tk.Label(frame1, text="Percentage Change: ")
 result_label.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
 
+desktop_heading = tk.Label(frame1, text="Desktop Calculation", font=("Helvetica", 8, "bold", "underline"), fg="grey", anchor="center")
+desktop_heading.grid(row=4, column=0, columnspan=2, padx=5, pady=(20, 5), sticky="we")
+desktop_heading.grid_remove()
+
+desktop_steps_label = tk.Label(frame1, text="", font=("Helvetica", 8), fg="grey", anchor="center")
+desktop_steps_label.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+desktop_steps_label.grid_remove()
+
+excel_heading = tk.Label(frame1, text="Excel Calculation", font=("Helvetica", 8, "bold", "underline"), fg="grey", anchor="center")
+excel_heading.grid(row=6, column=0, columnspan=2, padx=5, pady=(20, 5), sticky="we")
+excel_heading.grid_remove()
+
+excel_steps_label = tk.Label(frame1, text="", font=("Helvetica", 8), fg="grey", anchor="center")
+excel_steps_label.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+excel_steps_label.grid_remove()
+
+toggle_button = tk.Button(frame1, text="Show Calculations", command=toggle_calculations, bg="#f9f9f9", font=("Helvetica", 7))
+toggle_button.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
 # Add Decimals button for Calculator 1
 decimal_button1 = tk.Button(frame1, text=f"Decimals: {decimal_places}", command=toggle_decimal_places, bg="#f9f9f9", font=("Helvetica", 8))
-decimal_button1.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+decimal_button1.grid(row=9, column=0, columnspan=2, padx=5, pady=5)
 decimal_buttons.append(decimal_button1)
 
 # Calculator 2 Tab (Increase/Decrease)
@@ -189,9 +257,28 @@ new_value_entry.grid(row=4, column=1, padx=5, pady=5)
 result_label2 = tk.Label(frame2, text="New Value: ")
 result_label2.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
 
+desktop_heading2 = tk.Label(frame2, text="Desktop Calculation", font=("Helvetica", 8, "bold", "underline"), fg="grey", anchor="center")
+desktop_heading2.grid(row=6, column=0, columnspan=2, padx=5, pady=(20, 5), sticky="we")
+desktop_heading2.grid_remove()
+
+desktop_steps_label2 = tk.Label(frame2, text="", font=("Helvetica", 8), fg="grey", anchor="center")
+desktop_steps_label2.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+desktop_steps_label2.grid_remove()
+
+excel_heading2 = tk.Label(frame2, text="Excel Calculation", font=("Helvetica", 8, "bold", "underline"), fg="grey", anchor="center")
+excel_heading2.grid(row=8, column=0, columnspan=2, padx=5, pady=(20, 5), sticky="we")
+excel_heading2.grid_remove()
+
+excel_steps_label2 = tk.Label(frame2, text="", font=("Helvetica", 8), fg="grey", anchor="center")
+excel_steps_label2.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+excel_steps_label2.grid_remove()
+
+toggle_button2 = tk.Button(frame2, text="Show Calculations", command=toggle_calculations, bg="#f9f9f9", font=("Helvetica", 7))
+toggle_button2.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
 # Add Decimals button for Calculator 2
 decimal_button2 = tk.Button(frame2, text=f"Decimals: {decimal_places}", command=toggle_decimal_places, bg="#f9f9f9", font=("Helvetica", 8))
-decimal_button2.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
+decimal_button2.grid(row=11, column=0, columnspan=2, padx=5, pady=5)
 decimal_buttons.append(decimal_button2)
 
 # Basic Calculator Tab (Calculator 3)
@@ -208,9 +295,20 @@ calculate_button_basic.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 result_label_basic = tk.Label(frame3, text="Result: ")
 result_label_basic.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
 
+basic_heading = tk.Label(frame3, text="Basic Calculation Steps", font=("Helvetica", 8, "bold", "underline"), fg="grey", anchor="center")
+basic_heading.grid(row=3, column=0, columnspan=2, padx=5, pady=(20, 5), sticky="we")
+basic_heading.grid_remove()
+
+basic_steps_label = tk.Label(frame3, text="", font=("Helvetica", 8), fg="grey", anchor="center")
+basic_steps_label.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+basic_steps_label.grid_remove()
+
+toggle_button_basic = tk.Button(frame3, text="Show Calculations", command=toggle_calculations, bg="#f9f9f9", font=("Helvetica", 7))
+toggle_button_basic.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
 # Add Decimals button for Basic Calculator
 decimal_button3 = tk.Button(frame3, text=f"Decimals: {decimal_places}", command=toggle_decimal_places, bg="#f9f9f9", font=("Helvetica", 8))
-decimal_button3.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+decimal_button3.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
 decimal_buttons.append(decimal_button3)
 
 # Bind Enter key for all tabs and fields
