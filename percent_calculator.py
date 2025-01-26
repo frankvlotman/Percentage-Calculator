@@ -192,12 +192,91 @@ def clear_basic_calculator_and_focus(event=None):
     clear_basic_calculator()
     entry_expression.focus_set()
 
-# Toggle visibility of Desktop and Excel steps
+# Custom Calculator (New Tab)
+def custom_calculate(event=None):
+    try:
+        expression1 = entry_custom_expression1.get()
+        expression2 = entry_custom_expression2.get()
+        operation = custom_operation_var.get()
+
+        # Evaluate both expressions
+        result1 = eval(expression1)
+        result2 = eval(expression2)
+
+        # Perform the selected operation
+        if operation == "Addition":
+            grand_total = result1 + result2
+            operation_symbol = '+'
+        elif operation == "Subtraction":
+            grand_total = result1 - result2
+            operation_symbol = '-'
+        elif operation == "Multiplication":
+            grand_total = result1 * result2
+            operation_symbol = '*'
+        elif operation == "Division":
+            if result2 == 0:
+                raise ZeroDivisionError("Division by zero is undefined.")
+            grand_total = result1 / result2
+            operation_symbol = '/'
+        else:
+            grand_total = 0
+            operation_symbol = '?'
+
+        # Format the results
+        formatted_result1 = f"{result1:,.{decimal_places}f}"
+        formatted_result2 = f"{result2:,.{decimal_places}f}"
+        formatted_grand_total = f"{grand_total:,.{decimal_places}f}"
+
+        # Update result labels
+        result_label_custom1.config(text=f"Result 1: {formatted_result1}")
+        result_label_custom2.config(text=f"Result 2: {formatted_result2}")
+        grand_total_label_custom.config(text=f"Grand Total: {formatted_grand_total}")
+
+        # Show calculation steps
+        custom_steps = (
+            f"Calculation 1: {expression1} = {formatted_result1}\n"
+            f"Calculation 2: {expression2} = {formatted_result2}\n"
+            f"Grand Total ({operation_symbol}): {formatted_result1} {operation_symbol} {formatted_result2} = {formatted_grand_total}"
+        )
+        custom_steps_label.config(text=custom_steps)
+    except (ValueError, SyntaxError):
+        result_label_custom1.config(text="Result 1: Error")
+        result_label_custom2.config(text="Result 2: Error")
+        grand_total_label_custom.config(text="Grand Total: Error")
+        custom_steps_label.config(text="Enter valid expressions")
+    except ZeroDivisionError:
+        result_label_custom1.config(text=f"Result 1: {result1:,.{decimal_places}f}")
+        result_label_custom2.config(text="Result 2: Error (Division by Zero)")
+        grand_total_label_custom.config(text="Grand Total: Error")
+        custom_steps_label.config(text="Cannot divide by zero.")
+
+# Function to clear Custom Calculator fields and move focus
+def clear_custom_calculator():
+    entry_custom_expression1.delete(0, tk.END)
+    entry_custom_expression2.delete(0, tk.END)
+    result_label_custom1.config(text="Result 1: ")
+    result_label_custom2.config(text="Result 2: ")
+    grand_total_label_custom.config(text="Grand Total: ")
+    custom_steps_label.config(text="")
+    entry_custom_expression1.focus_set()
+
+# Function to calculate and focus
+def custom_calculate_and_focus(event=None):
+    custom_calculate()
+    clear_button_custom.focus_set()
+
+# Function to clear and focus
+def clear_custom_calculator_and_focus(event=None):
+    clear_custom_calculator()
+    entry_custom_expression1.focus_set()
+
+# Toggle visibility of Desktop, Excel, and Custom Calculator steps
 def toggle_calculations():
     widgets = [
         desktop_heading, desktop_steps_label, excel_heading, excel_steps_label,
         desktop_heading2, desktop_steps_label2, excel_heading2, excel_steps_label2,
-        basic_heading, basic_steps_label  # Including basic calculation steps toggle
+        basic_heading, basic_steps_label,
+        custom_heading, custom_steps_label  # Including Custom Calculator steps toggle
     ]
     for widget in widgets:
         if widget.winfo_viewable():
@@ -216,11 +295,13 @@ tab_control = ttk.Notebook(root)
 tab1 = ttk.Frame(tab_control)
 tab2 = ttk.Frame(tab_control)
 tab3 = ttk.Frame(tab_control)
+tab_custom = ttk.Frame(tab_control)  # New Tab for Custom Calculator
 tab_vat = ttk.Frame(tab_control)  
 
 tab_control.add(tab1, text='Calculator 1')  
 tab_control.add(tab2, text='Calculator 2')  
 tab_control.add(tab3, text='Basic Calculator')
+tab_control.add(tab_custom, text='Custom')  # Renamed to 'Custom'
 tab_control.add(tab_vat, text='VAT Calculator')  
 
 tab_control.pack(expand=1, fill='both')
@@ -378,8 +459,13 @@ frame3 = tk.Frame(tab3)
 frame3.pack(padx=10, pady=10)
 
 tk.Label(frame3, text="Expression:").grid(row=0, column=0, padx=5, pady=5)
-entry_expression = tk.Entry(frame3)
-entry_expression.grid(row=0, column=1, padx=5, pady=5)
+
+# Modified Entry widget with increased width and horizontal expansion
+entry_expression = tk.Entry(frame3, width=50)  # Increased width to accommodate longer expressions
+entry_expression.grid(row=0, column=1, padx=5, pady=5, sticky="we")  # Added sticky="we" for horizontal expansion
+
+# Configure column 1 to expand when window is resized
+frame3.columnconfigure(1, weight=1)
 
 # Frame to hold Calculate and Clear buttons side by side
 button_frame3 = tk.Frame(frame3)
@@ -410,6 +496,68 @@ decimal_button3 = tk.Button(frame3, text=f"Decimals: {decimal_places}", command=
 decimal_button3.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
 decimal_buttons.append(decimal_button3)
 
+# Custom Calculator Tab (New Tab)
+frame_custom = tk.Frame(tab_custom)
+frame_custom.pack(padx=10, pady=10)
+
+tk.Label(frame_custom, text="Expression 1:").grid(row=0, column=0, padx=5, pady=5)
+entry_custom_expression1 = tk.Entry(frame_custom, width=50)  # Increased width for first expression
+entry_custom_expression1.grid(row=0, column=1, padx=5, pady=5, sticky="we")
+
+tk.Label(frame_custom, text="Expression 2:").grid(row=1, column=0, padx=5, pady=5)
+entry_custom_expression2 = tk.Entry(frame_custom, width=50)  # Increased width for second expression
+entry_custom_expression2.grid(row=1, column=1, padx=5, pady=5, sticky="we")
+
+# Operation Selection
+tk.Label(frame_custom, text="Operation:").grid(row=2, column=0, padx=5, pady=5, sticky="e")
+custom_operation_var = tk.StringVar(value="Addition")  # Default operation
+
+# Frame for radio buttons
+operation_frame = tk.Frame(frame_custom)
+operation_frame.grid(row=2, column=1, padx=5, pady=5, sticky="w")
+
+operations = ["Addition", "Subtraction", "Multiplication", "Division"]
+for op in operations:
+    tk.Radiobutton(operation_frame, text=op, variable=custom_operation_var, value=op, font=("Helvetica", 8)).pack(side=tk.LEFT, padx=5)
+
+# Configure column 1 to expand
+frame_custom.columnconfigure(1, weight=1)
+
+# Frame to hold Calculate and Clear buttons side by side
+button_frame_custom = tk.Frame(frame_custom)
+button_frame_custom.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+
+calculate_button_custom = tk.Button(button_frame_custom, text="Calculate", command=custom_calculate_and_focus, bg="#d0e8f1", font=("Helvetica", 8))
+calculate_button_custom.pack(side=tk.LEFT, padx=(0, 5))
+
+clear_button_custom = tk.Button(button_frame_custom, text="Clear", command=clear_custom_calculator_and_focus, bg="#f1d0d0", font=("Helvetica", 8))
+clear_button_custom.pack(side=tk.LEFT, padx=(5, 0))
+
+result_label_custom1 = tk.Label(frame_custom, text="Result 1: ")
+result_label_custom1.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+
+result_label_custom2 = tk.Label(frame_custom, text="Result 2: ")
+result_label_custom2.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+
+grand_total_label_custom = tk.Label(frame_custom, text="Grand Total: ")
+grand_total_label_custom.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
+
+custom_heading = tk.Label(frame_custom, text="Custom Calculation Steps", font=("Helvetica", 8, "bold", "underline"), fg="grey", anchor="center")
+custom_heading.grid(row=7, column=0, columnspan=2, padx=5, pady=(20, 5), sticky="we")
+custom_heading.grid_remove()
+
+custom_steps_label = tk.Label(frame_custom, text="", font=("Helvetica", 8), fg="grey", anchor="center")
+custom_steps_label.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+custom_steps_label.grid_remove()
+
+toggle_button_custom = tk.Button(frame_custom, text="Show Calculations", command=toggle_calculations, bg="#f9f9f9", font=("Helvetica", 7))
+toggle_button_custom.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+# Add Decimals button for Custom Calculator
+decimal_button_custom = tk.Button(frame_custom, text=f"Decimals: {decimal_places}", command=toggle_decimal_places, bg="#f9f9f9", font=("Helvetica", 8))
+decimal_button_custom.grid(row=10, column=0, columnspan=2, padx=5, pady=5)
+decimal_buttons.append(decimal_button_custom)
+
 # Enter Key Bindings for VAT Calculator
 def bind_vat_calculator():
     vat_initial_amount_entry.bind('<Return>', lambda event: vat_percentage_entry.focus_set())
@@ -439,11 +587,19 @@ def bind_basic_calculator():
     calculate_button_basic.bind('<Return>', lambda event: clear_button_basic.focus_set())
     clear_button_basic.bind('<Return>', lambda event: clear_basic_calculator())
 
+# Enter Key Bindings for Custom Calculator
+def bind_custom_calculator():
+    entry_custom_expression1.bind('<Return>', lambda event: entry_custom_expression2.focus_set())
+    entry_custom_expression2.bind('<Return>', lambda event: calculate_button_custom.invoke())
+    calculate_button_custom.bind('<Return>', lambda event: clear_button_custom.focus_set())
+    clear_button_custom.bind('<Return>', lambda event: clear_custom_calculator())
+
 # Call the binding functions
 bind_vat_calculator()
 bind_calculator1()
 bind_calculator2()
 bind_basic_calculator()
+bind_custom_calculator()
 
 # Main loop
 root.mainloop()
