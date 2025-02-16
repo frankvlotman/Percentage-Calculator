@@ -20,10 +20,15 @@ decimal_places = 2
 # List to store references to decimal buttons
 decimal_buttons = []
 
-# Function to toggle between 2 and 5 decimal places
+# Function to toggle between 2, 5, and 8 decimal places
 def toggle_decimal_places():
     global decimal_places
-    decimal_places = 5 if decimal_places == 2 else 2
+    if decimal_places == 2:
+        decimal_places = 5
+    elif decimal_places == 5:
+        decimal_places = 8
+    else:
+        decimal_places = 2
     # Update all decimal buttons with the current number of decimal places
     for button in decimal_buttons:
         button.config(text=f"Decimals: {decimal_places}")
@@ -301,7 +306,7 @@ tab_vat = ttk.Frame(tab_control)
 tab_control.add(tab1, text='Calculator 1')  
 tab_control.add(tab2, text='Calculator 2')  
 tab_control.add(tab3, text='Basic Calculator')
-tab_control.add(tab_custom, text='Custom')  # Renamed to 'Custom'
+tab_control.add(tab_custom, text='Custom')
 tab_control.add(tab_vat, text='VAT Calculator')  
 
 tab_control.pack(expand=1, fill='both')
@@ -332,7 +337,8 @@ subtract_vat_button.pack(side=tk.LEFT, padx=(5, 5))
 clear_vat_button = tk.Button(button_frame_vat, text="Clear", command=clear_vat_calculator_and_focus, bg="#f1d0d0", font=("Helvetica", 8))
 clear_vat_button.pack(side=tk.LEFT, padx=(5, 0))
 
-net_amount_label = tk.Label(vat_frame, text="Net Amount: ")
+# Net Amount label with a slightly larger, bold font
+net_amount_label = tk.Label(vat_frame, text="Net Amount: ", font=("Helvetica", 10, "bold"))
 net_amount_label.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
 
 vat_result_label = tk.Label(vat_frame, text="VAT: ")
@@ -459,12 +465,8 @@ frame3 = tk.Frame(tab3)
 frame3.pack(padx=10, pady=10)
 
 tk.Label(frame3, text="Expression:").grid(row=0, column=0, padx=5, pady=5)
-
-# Modified Entry widget with increased width and horizontal expansion
-entry_expression = tk.Entry(frame3, width=50)  # Increased width to accommodate longer expressions
-entry_expression.grid(row=0, column=1, padx=5, pady=5, sticky="we")  # Added sticky="we" for horizontal expansion
-
-# Configure column 1 to expand when window is resized
+entry_expression = tk.Entry(frame3, width=50)
+entry_expression.grid(row=0, column=1, padx=5, pady=5, sticky="we")
 frame3.columnconfigure(1, weight=1)
 
 # Frame to hold Calculate and Clear buttons side by side
@@ -501,16 +503,16 @@ frame_custom = tk.Frame(tab_custom)
 frame_custom.pack(padx=10, pady=10)
 
 tk.Label(frame_custom, text="Expression 1:").grid(row=0, column=0, padx=5, pady=5)
-entry_custom_expression1 = tk.Entry(frame_custom, width=50)  # Increased width for first expression
+entry_custom_expression1 = tk.Entry(frame_custom, width=50)
 entry_custom_expression1.grid(row=0, column=1, padx=5, pady=5, sticky="we")
 
 tk.Label(frame_custom, text="Expression 2:").grid(row=1, column=0, padx=5, pady=5)
-entry_custom_expression2 = tk.Entry(frame_custom, width=50)  # Increased width for second expression
+entry_custom_expression2 = tk.Entry(frame_custom, width=50)
 entry_custom_expression2.grid(row=1, column=1, padx=5, pady=5, sticky="we")
 
 # Operation Selection
 tk.Label(frame_custom, text="Operation:").grid(row=2, column=0, padx=5, pady=5, sticky="e")
-custom_operation_var = tk.StringVar(value="Addition")  # Default operation
+custom_operation_var = tk.StringVar(value="Addition")
 
 # Frame for radio buttons
 operation_frame = tk.Frame(frame_custom)
@@ -520,7 +522,6 @@ operations = ["Addition", "Subtraction", "Multiplication", "Division"]
 for op in operations:
     tk.Radiobutton(operation_frame, text=op, variable=custom_operation_var, value=op, font=("Helvetica", 8)).pack(side=tk.LEFT, padx=5)
 
-# Configure column 1 to expand
 frame_custom.columnconfigure(1, weight=1)
 
 # Frame to hold Calculate and Clear buttons side by side
@@ -600,6 +601,24 @@ bind_calculator1()
 bind_calculator2()
 bind_basic_calculator()
 bind_custom_calculator()
+
+# --- Hover Glow Effect for Buttons ---
+def add_hover_effect(button, hover_color="#ffff99"):
+    original_bg = button.cget("bg")
+    button.bind("<Enter>", lambda event: button.config(bg=hover_color))
+    button.bind("<Leave>", lambda event: button.config(bg=original_bg))
+
+# List all buttons to receive the hover effect
+hover_buttons = [
+    add_vat_button, subtract_vat_button, clear_vat_button, decimal_button_vat,
+    calculate_button1, clear_button1, toggle_button, decimal_button1,
+    calculate_button2, clear_button2, toggle_button2, decimal_button2,
+    calculate_button_basic, clear_button_basic, toggle_button_basic, decimal_button3,
+    calculate_button_custom, clear_button_custom, toggle_button_custom, decimal_button_custom
+]
+
+for btn in hover_buttons:
+    add_hover_effect(btn)
 
 # Main loop
 root.mainloop()
